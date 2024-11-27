@@ -1,0 +1,3 @@
+steps:
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'function-2', '--runtime', 'python311','--source', 'src', '--trigger-http', '--entry-point', 'all_consolidated_apis']
