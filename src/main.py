@@ -8,13 +8,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # Replace with your actual API endpoints, credentials, and scopes
 
 AUTH_TYPES = {
-     "SAT": {
+     "AUTH1": {
         "URL": "[URL]",
         "client_id": "[CLIENT_ID]",
         "client_secret": "[CLIENT_SECRET]",
         "token": "",
     },
-    "CIMA": {
+    "AUTH2": {
         "URL": "[URL]",
         "client_id": "[CLIENT_ID]",
         "client_secret": "[CLIENT_SECRET]",
@@ -55,7 +55,7 @@ def get_oauth_token(api_name, config):
 
 def refresh_token(auth_type, auth_url, client_id, client_secret, config):
     """Refreshes the OAuth token."""
-    if auth_type == "SAT":
+    if auth_type == "AUTH1":
         token_response = requests.post(
             auth_url,
             data={
