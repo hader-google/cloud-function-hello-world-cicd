@@ -22,7 +22,7 @@ This project automates the deployment of a Cloud Function via Workload Identity 
 
 4. **Deploy Cloud Function:** The workflow uses the `gcloud functions deploy` command to deploy the Cloud Function code.  The command utilizes the obtained access token for authentication.
 
-## GitHub Actions Configuration (`/home/haderceron/comcast/cloud-function-hello-world-cicd/src/.github/workflows/deploy-function.yml`)
+## GitHub Actions Configuration
 
 The workflow file defines the steps for building and deploying the Cloud Function.  The following sections are crucial:
 
