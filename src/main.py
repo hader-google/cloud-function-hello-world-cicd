@@ -9,13 +9,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 AUTH_TYPES = {
      "SAT": {
-        "URL": "https://sat-prod.codebig2.net/v2/ws/token.oauth2",
+        "URL": "[URL]",
         "client_id": "[CLIENT_ID]",
         "client_secret": "[CLIENT_SECRET]",
         "token": "",
     },
     "CIMA": {
-        "URL": "https://oauth.xfinity.com/oauth/token",
+        "URL": "[URL]",
         "client_id": "[CLIENT_ID]",
         "client_secret": "[CLIENT_SECRET]",
         "token": "",
