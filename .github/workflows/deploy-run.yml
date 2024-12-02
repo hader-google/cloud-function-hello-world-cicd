@@ -22,7 +22,7 @@ jobs:
         uses: 'google-github-actions/auth@v1'
         with:
           workload_identity_provider: '${{ vars.GCP_SA_WIF_PROVIDER }}'
-          service_account: 'gha-sa-001@hader-poc-001.iam.gserviceaccount.com'
+          service_account: 'github-sa-002@hader-poc-001.iam.gserviceaccount.com'
 
       - name: Deploy to Cloud Run
         id: deploy
