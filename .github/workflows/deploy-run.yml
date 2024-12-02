@@ -29,5 +29,5 @@ jobs:
       - id: 'deploy'
         uses: 'google-github-actions/deploy-cloudrun@v2'
         with:
-          service: 'gha-run4'
+          service: 'gha-run6'
           source: 'run-src'
