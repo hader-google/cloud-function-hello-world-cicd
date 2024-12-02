@@ -22,13 +22,13 @@ jobs:
         uses: 'google-github-actions/auth@v1'
         with:
           workload_identity_provider: '${{ vars.GCP_SA_WIF_PROVIDER }}'
-          service_account: '${{ vars.GCP_SA_WIF_SA }}'
+          service_account: 'gha-sa-001@hader-poc-001.iam.gserviceaccount.com'
 
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: gha-run-sa4
+          service: gha-run
           region: us-central1
           # NOTE: If required, update to the appropriate source folder
           source: run-src/
