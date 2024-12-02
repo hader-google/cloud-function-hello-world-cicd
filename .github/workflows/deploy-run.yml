@@ -20,14 +20,11 @@ jobs:
         with:
           workload_identity_provider: '${{ vars.GCP_SA_WIF_PROVIDER }}'
           service_account: '${{ vars.GCP_SA_WIF_SA }}'
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v0
         with:
-          version: '>= 363.0.0'
-      - name: 'Use gcloud CLI'
-        run: 'gcloud info'
-      - id: 'deploy'
-        uses: 'google-github-actions/deploy-cloudrun@v2'
-        with:
-          service: 'gha-run6'
-          source: 'run-src'
+          service: gha-run
+          region: us-central1
+          # NOTE: If required, update to the appropriate source folder
+          source: run-src/
