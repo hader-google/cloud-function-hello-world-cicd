@@ -1,5 +1,5 @@
-name: Deploy Cloud Functions
-run-name: 🚀 ${{ github.actor }} is deploying all cloud functions
+name: Deploy to Cloud Run from Source
+
 on:
   push:
     branches:
@@ -8,18 +8,22 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    # Add 'id-token' with the intended permissions for workload identity federation
     permissions:
+      contents: 'read'
       id-token: 'write'
       
     steps:
-      - uses: actions/checkout@v3
-      - run: ls
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Google Auth
+        id: auth
         uses: 'google-github-actions/auth@v1'
         with:
           workload_identity_provider: '${{ vars.GCP_SA_WIF_PROVIDER }}'
           service_account: '${{ vars.GCP_SA_WIF_SA }}'
+          
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v0
