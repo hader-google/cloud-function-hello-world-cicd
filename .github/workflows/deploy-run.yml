@@ -28,7 +28,7 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: gha-run-sa2
+          service: gha-run-sa4
           region: us-central1
           # NOTE: If required, update to the appropriate source folder
           source: run-src/
