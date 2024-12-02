@@ -1,0 +1,33 @@
+name: Deploy Cloud Functions
+run-name: 🚀 ${{ github.actor }} is deploying all cloud functions
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: 'write'
+      
+    steps:
+      - uses: actions/checkout@v3
+      - run: ls
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: '${{ vars.GCP_SA_WIF_PROVIDER }}'
+          service_account: '${{ vars.GCP_SA_WIF_SA }}'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+        with:
+          version: '>= 363.0.0'
+      - name: 'Use gcloud CLI'
+        run: 'gcloud info'
+      - id: 'deploy'
+        uses: 'google-github-actions/deploy-cloudrun@v2'
+        with:
+          service: 'gha-run'
+          source: 'run-src'
