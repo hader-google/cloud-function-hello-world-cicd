@@ -11,6 +11,8 @@ COPY . .
 
 RUN cd run-src/
 
+RUN ls -la
+
 # Install production dependencies.
 RUN pip install functions-framework
 RUN pip install -r requirements.txt
