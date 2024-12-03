@@ -9,6 +9,8 @@ ENV PYTHONUNBUFFERED TRUE
 WORKDIR $APP_HOME
 COPY . .
 
+RUN ls -la
+
 # Install production dependencies.
 RUN pip install functions-framework
 RUN pip install -r requirements.txt
