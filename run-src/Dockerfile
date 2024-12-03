@@ -3,19 +3,17 @@
 FROM python:3.7-slim@sha256:adbcdfcd0511bab2d6db252e55b983da1b431598ed755c1620b291fbeb5f6f72
 
 # Copy local code to the container image.
-ENV APP_HOME /app/run-src
+ENV APP_HOME /app
 ENV PYTHONUNBUFFERED TRUE
 
 WORKDIR $APP_HOME
 COPY . .
 
-RUN cd run-src/
-
 RUN ls -la
 
 # Install production dependencies.
 RUN pip install functions-framework
-RUN pip install -r requirements.txt
+RUN pip install -r run-src/requirements.txt
 
 # Run the web service on container startup.
 CMD exec functions-framework --target=hello --port=8081
