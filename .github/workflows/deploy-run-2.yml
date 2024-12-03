@@ -8,7 +8,7 @@ on:
 env:
   PROJECT_ID: "hader-poc-001"
   PROJECT_NUM: "hader-poc-001"
-  ARTIFACT_REPO_NAME: " cloud-run-source-deploy"
+  ARTIFACT_REPO_NAME: "cloud-run-source-deploy"
   REGION: "us-central1"
   SERVICE_ACCOUNT: "github-sa-002@hader-poc-001.iam.gserviceaccount.com"
   SERVICE_NAME: "gha-run-001"
