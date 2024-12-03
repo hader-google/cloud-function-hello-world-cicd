@@ -16,4 +16,4 @@ RUN pip install functions-framework
 RUN pip install -r run-src/requirements.txt
 
 # Run the web service on container startup.
-CMD exec functions-framework --target=hello --port=8081
+CMD exec functions-framework --target=hello --source=run-src/main.py --port=8081
