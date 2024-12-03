@@ -1,0 +1,86 @@
+name: Build, Push, and Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main # Replace with your main branch name
+
+env:
+  PROJECT_ID: "hader-poc-001"
+  PROJECT_NUM: "hader-poc-001"
+  ARTIFACT_REPO_NAME: "ap-deploy-crf"
+  REGION: "us-central1"
+  SERVICE_ACCOUNT: "github-sa-002@hader-poc-001.iam.gserviceaccount.com"
+  SERVICE_NAME: "gha-run-001"
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+        contents: 'read'
+        id-token: 'write'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Configure Workload Identity Federation
+      - name: Configure Workload Identity Federation
+        id: workload_identity
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: 'access_token'
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: '${{ vars.GCP_SA_WIF_PROVIDER }}'
+          service_account: '${{ vars.GCP_SA_WIF_SA }}'
+
+      # - name: Deploy to Cloud Run
+      #   id: deploy
+      #   uses: google-github-actions/deploy-cloudrun@v2
+      #   with:
+      #     service: ${{ env.SERVICE_NAME }}
+      #     region: us-central1
+      #     source: src/
+      #     flags: '--port=8081'
+
+      # Get the ID token for authentication
+      - name: Get ID token
+        run: echo "ID_TOKEN=$(gcloud auth print-identity-token)" >> $GITHUB_ENV
+
+      # # Configure Docker to use the gcloud command-line tool as a credential helper
+      # - name: Configure Docker authentication
+      #   run: gcloud auth configure-docker
+
+      - name: Docker Auth
+        id: docker-auth
+        uses: 'docker/login-action@v1'
+        with:
+          username: 'oauth2accesstoken'
+          password: '${{ steps.workload_identity.outputs.access_token }}'
+          registry: '${{ env.REGION }}-docker.pkg.dev'
+
+      # Build and Push the Docker image to Artifactory 
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/first-image:latest .
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/first-image:latest
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/first-image:latest
+          flags: '--port=8081'
+
+      # # Deploy to Cloud Run
+      # - name: Deploy to Cloud Run
+      #   run: |
+      #     gcloud run deploy ${{ env.SERVICE_NAME }} \
+      #       --project=$PROJECT_ID \
+      #       --source src/ \
+      #       --region ${{ env.REGION }} \
+      #       --no-allow-unauthenticated \
+      #       --min-instances=1 \
+      #       --port=8081 \
+      #       --service-account ${{ env.SERVICE_ACCOUNT }}
