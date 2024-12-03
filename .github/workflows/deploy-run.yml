@@ -27,7 +27,7 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: function-test
+          service: function-test-2
           region: us-central1
           source: run-src/
           flags: '--port=8081'
