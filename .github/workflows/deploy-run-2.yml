@@ -56,7 +56,7 @@ jobs:
           file: ./run-src/Dockerfile
           push: true 
           tags: |
-            ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/first-image:latest          
+            ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/test-image:latest          
 
       # Build and Push the Docker image to Artifactory 
       # - name: Build Docker image
@@ -64,11 +64,11 @@ jobs:
       #     docker build -f run-src/Dockerfile -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/first-image:latest .
       #     docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/first-image:latest
 
-      # - name: Deploy to Cloud Run
-      #   id: deploy
-      #   uses: google-github-actions/deploy-cloudrun@v2
-      #   with:
-      #     service: ${{ env.SERVICE_NAME }}
-      #     region: ${{ env.REGION }}
-      #     image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/first-image:latest
-      #     flags: '--port=8081'
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/test-image:latest
+          flags: '--port=8081'
