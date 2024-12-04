@@ -1,17 +1,15 @@
-name: Build, Push, and Deploy to Cloud Run
+name: Deploy to Cloud Run
 
 on:
   push:
     branches:
-      - main # Replace with your main branch name
+      - main
 
 env:
-  PROJECT_ID: "hader-poc-001"
-  PROJECT_NUM: "hader-poc-001"
-  ARTIFACT_REPO_NAME: "cloud-run-source-deploy"
+  GCP_PROJECT_ID: "hader-poc-001"
   REGION: "us-central1"
-  SERVICE_ACCOUNT: "github-sa-002@hader-poc-001.iam.gserviceaccount.com"
-  SERVICE_NAME: "gha-run-001"
+  ARTIFACT_REPO: "cloud-run-source-deploy"
+  SERVICE_NAME: "gha-run-003"
 
 jobs:
   build-push-deploy:
@@ -23,23 +21,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Configure Workload Identity Federation
-      - name: Configure Workload Identity Federation
-        id: workload_identity
+      - name: Google Auth
+        id: auth
         uses: google-github-actions/auth@v2
         with:
           token_format: 'access_token'
           project_id: ${{ env.PROJECT_ID }}
           workload_identity_provider: '${{ vars.GCP_SA_WIF_PROVIDER }}'
           service_account: '${{ vars.GCP_SA_WIF_SA }}'
-
-      # Get the ID token for authentication
-      #- name: Get ID token
-      #  run: echo "ID_TOKEN=$(gcloud auth print-identity-token)" >> $GITHUB_ENV
-
-      # # Configure Docker to use the gcloud command-line tool as a credential helper
-      # - name: Configure Docker authentication
-      #   run: gcloud auth configure-docker
 
       - name: Docker Auth
         id: docker-auth
@@ -56,13 +45,7 @@ jobs:
           file: ./run-src/Dockerfile
           push: true 
           tags: |
-            ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/test-image:latest          
-
-      # Build and Push the Docker image to Artifactory 
-      # - name: Build Docker image
-      #   run: |
-      #     docker build -f run-src/Dockerfile -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/first-image:latest .
-      #     docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/first-image:latest
+            ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:latest          
 
       - name: Deploy to Cloud Run
         id: deploy
@@ -70,5 +53,5 @@ jobs:
         with:
           service: ${{ env.SERVICE_NAME }}
           region: ${{ env.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO_NAME }}/test-image:latest
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:latest
           flags: '--port=8081'
