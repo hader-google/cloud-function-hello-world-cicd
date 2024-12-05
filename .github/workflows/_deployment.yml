@@ -25,6 +25,7 @@ jobs:
         contents: 'read'
         id-token: 'write'
     steps:
-     - name: Echo Env
-      run: |
-        echo $env
+      - name: Any Name Bash Test Step
+        shell: bash
+        run: |
+          echo "ENV: $env"
