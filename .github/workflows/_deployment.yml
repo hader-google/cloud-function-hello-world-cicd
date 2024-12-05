@@ -1,4 +1,4 @@
-name: Deployment Reusable Workflow
+name: Deployment to Cloud Run
 
 on:
   workflow_call:
