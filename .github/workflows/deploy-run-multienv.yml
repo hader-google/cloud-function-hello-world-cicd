@@ -6,11 +6,7 @@ on:
       environment:
         type: string
         required: true
-        description: Name of the target environment.    
-      ref:  
-        type: string
-        required: true
-        description: The tag or SHA to checkout.
+        description: Name of the target environment. 
 
 jobs:
   build-push-deploy:
@@ -47,7 +43,7 @@ jobs:
           file: ./run-src/Dockerfile
           push: true 
           tags: |
-            ${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/${{ vars.SERVICE_NAME }}:${{ inputs.ref }}          
+            ${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/${{ vars.SERVICE_NAME }}:${{ github.sha }}          
 
       - name: Deploy to Cloud Run
         id: deploy
@@ -55,5 +51,5 @@ jobs:
         with:
           service: ${{ vars.SERVICE_NAME }}
           region: ${{ vars.REGION }}
-          image: ${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/${{ vars.SERVICE_NAME }}:${{ inputs.ref }}
+          image: ${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/${{ vars.SERVICE_NAME }}:${{ github.sha }}
           flags: '--port=8081 --service-account=${{ vars.CLOUD_RUN_SA }}'
