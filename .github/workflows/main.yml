@@ -8,18 +8,27 @@ jobs:
     name: develop
     if: ${{ github.ref == 'refs/heads/develop' || github.base_ref == 'develop' }}
     uses: ./.github/workflows/deploy-run-multienv.yml
+    permissions:
+        contents: 'read'
+        id-token: 'write'    
     with: 
       environment: dev
     secrets: inherit
   stage:
     if: ${{ github.ref == 'refs/heads/stage' || github.base_ref == 'stage' }}
     uses: ./.github/workflows/deploy-run-multienv.yml
+    permissions:
+        contents: 'read'
+        id-token: 'write'    
     with: 
       environment: stage
     secrets: inherit
   prod: 
     if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
     uses: ./.github/workflows/deploy-run-multienv.yml
+    permissions:
+        contents: 'read'
+        id-token: 'write'    
     with:
       environment: prod
     secrets: inherit
