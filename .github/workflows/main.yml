@@ -1,5 +1,4 @@
-name: Main Workflow CI/cloudrun
-
+name: Main Workflow CI/code
 on:
   push:
     branches: [develop, stage, main]
@@ -8,7 +7,7 @@ jobs:
   dev:
     name: deploy cloudrun to dev environment
     if: ${{ github.ref == 'refs/heads/develop' || github.base_ref == 'develop' }}
-    uses: ./.github/workflows/_deployment.yaml
+    uses: ./.github/workflows/_deployment.yml
     permissions: 
       id-token: write
       contents: read
@@ -18,7 +17,7 @@ jobs:
     secrets: inherit
   stage:
     if: ${{ github.ref == 'refs/heads/stage' || github.base_ref == 'stage' }}
-    uses: ./.github/workflows/_deployment.yaml
+    uses: ./.github/workflows/_deployment.yml
     permissions: 
       id-token: write
       contents: read
@@ -28,7 +27,7 @@ jobs:
     secrets: inherit
   prod: 
     if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
-    uses: ./.github/workflows/_deployment.yaml
+    uses: ./.github/workflows/_deployment.yml
     permissions: 
       id-token: write
       contents: read
