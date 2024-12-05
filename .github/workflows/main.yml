@@ -32,6 +32,6 @@ jobs:
       id-token: write
       contents: read
     with:
-      environment: prod
+      environment: dev
       ref: ${{ github.sha }}
     secrets: inherit
