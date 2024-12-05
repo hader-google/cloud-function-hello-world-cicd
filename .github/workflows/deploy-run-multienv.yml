@@ -1,4 +1,4 @@
-name: Deployment to Cloud Run Multi-Environment
+name: Deployment to Cloud Run Multi-Environment Workflow
 
 on:
   workflow_call:
