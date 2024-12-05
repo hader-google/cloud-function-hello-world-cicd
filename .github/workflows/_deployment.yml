@@ -29,4 +29,4 @@ jobs:
       - name: Any Name Bash Test Step
         shell: bash
         run: |
-          echo "ENV: ${{ inputs.environment }} - ${{ env.TEST }}"
+          echo "ENV: ${{ inputs.environment }} - ${{ vars.TEST }}"
