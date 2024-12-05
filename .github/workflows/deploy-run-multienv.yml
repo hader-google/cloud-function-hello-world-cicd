@@ -56,4 +56,4 @@ jobs:
           service: ${{ vars.SERVICE_NAME }}
           region: ${{ vars.REGION }}
           image: ${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/${{ vars.SERVICE_NAME }}:${{ inputs.ref }}
-          flags: '--port=8081'
+          flags: '--port=8081 --service-account=${{ vars.CLOUD_RUN_SA }}'
