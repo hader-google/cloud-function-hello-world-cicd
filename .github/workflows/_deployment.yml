@@ -21,6 +21,7 @@ env:
 jobs:
   build-push-deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     permissions:
         contents: 'read'
         id-token: 'write'
@@ -28,4 +29,4 @@ jobs:
       - name: Any Name Bash Test Step
         shell: bash
         run: |
-          echo "ENV: ${{ inputs.environment }}"
+          echo "ENV: ${{ inputs.environment }} - ${{ env.TEST }}"
