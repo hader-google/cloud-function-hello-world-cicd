@@ -61,9 +61,9 @@ jobs:
           cat container-${{ inputs.environment }}.yaml      
       
       - name: Deploy to Cloud Run
-              id: deploy
-              uses: google-github-actions/deploy-cloudrun@v0
-              with:
-                service: ${{ vars.service_name }}
-                region: ${{ vars.region }}
-                metadata: container-${{ inputs.environment }}.yaml
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v0
+        with:
+          service: ${{ vars.service_name }}
+          region: ${{ vars.region }}
+          metadata: container-${{ inputs.environment }}.yaml
