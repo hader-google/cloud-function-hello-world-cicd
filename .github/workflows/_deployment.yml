@@ -49,11 +49,21 @@ jobs:
           tags: |
             ${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/${{ vars.SERVICE_NAME }}:${{ inputs.ref }}          
 
+      - name: Create Service declaration   
+        run: |-
+          export CONTAINER_IMAGE="${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/${{ vars.SERVICE_NAME }}:${{ inputs.ref }}"
+          export SERVICE_NAME="${{ vars.SERVICE_NAME }}"
+          export PROJECT_ID="${{ vars.GCP_PROJECT_ID }}"
+          export REVISION_TAG="${{ inputs.ref }}"
+          export CLOUD_RUN_SA="${{ vars.CLOUD_RUN_SA }}"
+          export ENVIRONMENT="${{ inputs.environment }}"
+          envsubst < ./service-yaml/container.yaml > container-${{ inputs.environment }}.yaml
+          cat container-${{ inputs.environment }}.yaml      
+      
       - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: ${{ vars.SERVICE_NAME }}
-          region: ${{ vars.REGION }}
-          image: ${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/${{ vars.SERVICE_NAME }}:${{ inputs.ref }}
-          flags: '--port=8081'
+              id: deploy
+              uses: google-github-actions/deploy-cloudrun@v0
+              with:
+                service: ${{ vars.service_name }}
+                region: ${{ vars.region }}
+                metadata: container-${{ inputs.environment }}.yaml
