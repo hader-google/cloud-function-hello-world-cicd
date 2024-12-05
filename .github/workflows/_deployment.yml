@@ -21,7 +21,6 @@ env:
 jobs:
   build-push-deploy:
     runs-on: ubuntu-latest
-    environment: dev
     permissions:
         contents: 'read'
         id-token: 'write'
