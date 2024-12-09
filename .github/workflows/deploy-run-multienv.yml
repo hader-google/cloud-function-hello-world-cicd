@@ -16,14 +16,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install dotenv
-        uses: actions/setup-node@v3
-        with:
-          node-version: 'lts/*'
       - name: Load .env file
-        uses: motdotla/dotenv-action@v2
+        uses: xom9ikk/dotenv@v2.3.0
         with:
-          path: .env        
+          path: .env
+          load-mode: strict     
 
       - name: Google Auth
         id: auth
