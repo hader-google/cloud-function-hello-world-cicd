@@ -1,0 +1,8 @@
+name: Main Workflow to Deploy to Cloud Run
+on:
+  push:
+    branches: [develop, stage, main]
+
+jobs:
+  call-reusable-workflow:
+    uses: hader-google/main-cicd/.github/workflows/main.yml@v1
