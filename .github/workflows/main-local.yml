@@ -5,4 +5,4 @@ on:
 
 jobs:
   call-reusable-workflow:
-    uses: hader-google/main-cicd/.github/workflows/main.yml@v1
+    uses: hader-google/main-cicd/.github/workflows/main.yml@main
