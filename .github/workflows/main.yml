@@ -5,33 +5,30 @@ on:
 
 jobs: 
   dev:
-    name: deploy cloudrun to dev environment
+    name: develop
     if: ${{ github.ref == 'refs/heads/develop' || github.base_ref == 'develop' }}
     uses: ./.github/workflows/deploy-run-multienv.yml
-    permissions: 
-      id-token: write
-      contents: read
+    permissions:
+        contents: 'read'
+        id-token: 'write'    
     with: 
       environment: dev
-      ref: ${{ github.sha }}
     secrets: inherit
   stage:
     if: ${{ github.ref == 'refs/heads/stage' || github.base_ref == 'stage' }}
     uses: ./.github/workflows/deploy-run-multienv.yml
-    permissions: 
-      id-token: write
-      contents: read
+    permissions:
+        contents: 'read'
+        id-token: 'write'    
     with: 
       environment: stage
-      ref: ${{ github.sha }}
     secrets: inherit
   prod: 
     if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
     uses: ./.github/workflows/deploy-run-multienv.yml
-    permissions: 
-      id-token: write
-      contents: read
+    permissions:
+        contents: 'read'
+        id-token: 'write'    
     with:
       environment: prod
-      ref: ${{ github.sha }}
     secrets: inherit
