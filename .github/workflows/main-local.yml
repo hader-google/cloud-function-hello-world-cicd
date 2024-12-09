@@ -6,3 +6,6 @@ on:
 jobs:
   call-reusable-workflow:
     uses: hader-google/main-cicd/.github/workflows/main.yml@main
+    permissions:
+      contents: 'read'
+      id-token: 'write'   
