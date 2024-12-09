@@ -13,7 +13,6 @@ jobs:
         id-token: 'write'    
     with: 
       environment: dev
-      src_path: src
     secrets: inherit
   stage:
     if: ${{ github.ref == 'refs/heads/stage' || github.base_ref == 'stage' }}
@@ -23,7 +22,6 @@ jobs:
         id-token: 'write'    
     with: 
       environment: stage
-      src_path: src
     secrets: inherit
   prod: 
     if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
@@ -33,5 +31,4 @@ jobs:
         id-token: 'write'    
     with:
       environment: prod
-      src_path: src
     secrets: inherit
