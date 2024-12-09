@@ -7,6 +7,10 @@ on:
         type: string
         required: true
         description: Name of the target environment. 
+      src_path:
+        type: string
+        required: true
+        description: Name of the source code path.
 
 jobs:
   build-push-deploy:
@@ -19,7 +23,7 @@ jobs:
       - name: Load .env file
         uses: xom9ikk/dotenv@v2.3.0
         with:
-          path: ./src
+          path: ./${{ inputs.src_path }}
           mode: ${{ inputs.environment }}
           load-mode: strict     
 
@@ -44,7 +48,7 @@ jobs:
         id: build-image
         uses: docker/build-push-action@v3
         with:
-          file: ./run-src/Dockerfile
+          file: ./${{ inputs.src_path }}/Dockerfile
           push: true 
           tags: |
             ${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/${{ vars.SERVICE_NAME }}:${{ github.sha }}          
