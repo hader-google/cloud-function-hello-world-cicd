@@ -16,14 +16,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install dotenv
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+      - name: Load .env file
+        uses: motdotla/dotenv-action@v2
+        with:
+          path: .env        
+
       - name: Google Auth
         id: auth
         uses: google-github-actions/auth@v2
         with:
           token_format: 'access_token'
           project_id: ${{ vars.GCP_PROJECT_ID }}
-          workload_identity_provider: '${{ vars.GCP_SA_WIF_PROVIDER }}'
-          service_account: '${{ vars.GCP_SA_WIF_SA }}'
+          workload_identity_provider: '${{ env.GCP_SA_WIF_PROVIDER }}'
+          service_account: '${{ env.GCP_SA_WIF_SA }}'
 
       - name: Docker Auth
         id: docker-auth
