@@ -3,12 +3,6 @@ provider "google" {
   region  = "us-central1"
 }
 
-terraform {
- backend "gcs" {
-   bucket  = "hello-world-state-file"
-   prefix  = "/"
- }
-}
 
 resource "google_cloud_run_service" "app_service" {
   name     = "hello-world"
