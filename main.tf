@@ -3,6 +3,11 @@ provider "google" {
   region  = "us-central1"
 }
 
+terraform {
+  backend "local" {
+    path = "terraform.tfstate"
+  }
+}
 
 resource "google_cloud_run_service" "app_service" {
   name     = "hello-world"
