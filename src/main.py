@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from google.cloud import secretmanager_v1
+from google.cloud import secretmanager
 
 project_id = "hader-poc-001"
 location_id = "us-central1"
@@ -16,7 +16,7 @@ version_id = "latest"
 #api_endpoint = f"secretmanager.{location_id}.rep.googleapis.com"
 
 # Create the Secret Manager client.
-client = secretmanager_v1.SecretManagerServiceClient(
+client = secretmanager.SecretManagerServiceClient(
     #client_options={"api_endpoint": api_endpoint},
 )
 
