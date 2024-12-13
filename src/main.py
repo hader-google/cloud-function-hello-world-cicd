@@ -38,8 +38,8 @@ def get_secret(request):
         The value of the secret, or an empty string if the secret was created. Test
     """
 
-    project_id = request.args.get('project_id')
-    secret_id = request.args.get('secret_id')
+    project_id = "hader-poc-001"
+    secret_id = "my_secret_value"
 
     client = secretmanager.SecretManagerServiceClient()
     name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
