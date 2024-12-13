@@ -2,8 +2,29 @@ import requests
 import json
 import functions_framework
 from datetime import datetime, timedelta
-from google.cloud import secretmanager
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from google.cloud import secretmanager_v1
+
+project_id = "hader-poc-001"
+location_id = "us-central1"
+secret_id = "my_secret_value"
+version_id = "latest"
+
+# Endpoint to call the regional secret manager sever.
+api_endpoint = f"secretmanager.{location_id}.rep.googleapis.com"
+
+# Create the Secret Manager client.
+client = secretmanager_v1.SecretManagerServiceClient(
+    client_options={"api_endpoint": api_endpoint},
+)
+
+# Build the resource name of the secret version.
+name = f"projects/{project_id}/locations/{location_id}/secrets/{secret_id}/versions/{version_id}"
+
+response = client.access_secret_version(name=name)
+my_secret_value = response.payload.data.decode("UTF-8")
 
 
 
@@ -26,7 +47,7 @@ def store_token_in_secret(project_id, secret_id, token):
         request={"parent": parent, "payload": {"data": token_json.encode("UTF-8")}}
     )
 
-@functions_framework.http
+
 def get_secret(request):
     """Retrieves a secret from Secret Manager, creating it if it doesn't exist.
 
@@ -229,3 +250,8 @@ def all_consolidated_apis(request):
 
     except Exception as e:
         return {'message': f"An unexpected error occurred: {e}"}
+
+
+@functions_framework.http
+def secret_hello(request):
+ return f"Hello there: {my_secret_value}"
