@@ -1,83 +1,190 @@
 import requests
 import json
+import functions_framework
 from datetime import datetime, timedelta
+from google.cloud import secretmanager
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
-# Replace with your actual API endpoints, credentials, and scopes
 
-AUTH_TYPES = {
-     "AUTH1": {
-        "URL": "[URL]",
-        "client_id": "[CLIENT_ID]",
-        "client_secret": "[CLIENT_SECRET]",
-        "token": "",
-    },
-    "AUTH2": {
-        "URL": "[URL]",
-        "client_id": "[CLIENT_ID]",
-        "client_secret": "[CLIENT_SECRET]",
-        "token": "",
+def convert_datetime(obj):
+    """Default function to encode datetimes into a serializable string for json encoding"""
+    
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError()  
 
-    },
-}
+def store_token_in_secret(project_id, secret_id, token):
+    """ Stores authentication token in a GSM Secret"""
+    
+    client = secretmanager.SecretManagerServiceClient()
+    parent = f"projects/{project_id}/secrets/{secret_id}"
 
+    token_json = json.dumps(token, default=convert_datetime)
 
-TOKEN_CACHE = {}  # Moved TOKEN_CACHE outside the function for shared access
+    response = client.add_secret_version(
+        request={"parent": parent, "payload": {"data": token_json.encode("UTF-8")}}
+    )
 
+@functions_framework.http
+def get_secret(request):
+    """Retrieves a secret from Secret Manager, creating it if it doesn't exist.
+
+    Args:
+        project_id: The ID of the GCP project.
+        secret_id: The ID of the secret.
+
+    Returns:
+        The value of the secret, or an empty string if the secret was created.
+    """
+
+    project_id = request.args.get('project_id')
+    secret_id = request.args.get('secret_id')
+
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
+
+    if check_secret_exists(project_id, secret_id): 
+        response = client.access_secret_version(name=name)
+        return response.payload.data.decode('UTF-8')
+    else:
+        parent = f"projects/{project_id}"
+        _ = client.create_secret(
+        request={
+            "parent": parent,
+            "secret_id": secret_id,
+            "secret": {"replication": {"automatic": {}}}
+        }
+    )   
+
+        return "{}"
+
+def check_secret_exists(project_id, secret_id):
+    """Checks if a secret exists in Secret Manager.
+
+    Args:
+        project_id: The ID of the GCP project.
+        secret_id: The ID of the secret.
+
+    Returns:
+        True if the secret exists, False otherwise.
+    """
+
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{project_id}/secrets/{secret_id}"
+
+    try:
+        client.get_secret(request={"name": name})
+        return True
+    except Exception as e:
+        if "NOT_FOUND" in str(e):
+            return False
+
+def check_token_expiration(token_data):
+    if len(token_data.keys()) > 0:
+        expiration_date = datetime.strptime(token_data["expires_at"], '%Y-%m-%dT%H:%M:%S.%f')
+        if expiration_date > datetime.utcnow():
+            return True
+        return False
+    return False
+
+def check_token_scope(token_data, config):
+    token = token_data["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    if config.get("headers"):
+        headers.update(config.get("headers"))
+
+    if config.get("method_type") == "GET":
+        response = requests.get(
+            config.get('url'), headers=headers, json=config.get("request_body")
+        )
+    elif config.get("method_type") == "POST":
+        response = requests.post(
+            config.get('url'), headers=headers, json=config.get("request_body")
+        )
+    
+    if response.status_code == 200:
+        return True
+    return False
+    
+def get_scope(config):
+    scope = config.get("scope")
+    return scope
+    
 def get_oauth_token(api_name, config):
     """Retrieves and caches OAuth tokens, refreshing them if expired."""
-    token_data = TOKEN_CACHE.get(api_name)
-    auth_type = config.get('auth_type')
-    client_id = AUTH_TYPES[auth_type]['client_id']
-    client_secret = AUTH_TYPES[auth_type]['client_secret']
-    auth_url = AUTH_TYPES[auth_type]['URL']
+    
+    PROJECT_ID = '786354113445'
+    auth_type = config.get('auth_type').lower()
 
-    if token_data and token_data["expires_at"] > datetime.utcnow():
-        return token_data["access_token"]
+    #Extract these values using GSM
+    client_id = get_secret(PROJECT_ID, f"{auth_type}_client_id")
+    client_secret = get_secret(PROJECT_ID, f"{auth_type}_client_secret")
+    auth_url = get_secret(PROJECT_ID, f"{auth_type}_url")
 
     # Token is missing or expired, request a new one
-    # (Replace with your actual OAuth token retrieval logic)
-    with ThreadPoolExecutor(max_workers=1) as executor:  # Thread lock for token refresh
-        future = executor.submit(refresh_token, auth_type, auth_url, client_id, client_secret, config)
-        token_data = future.result()
+    if auth_type == "sat":
+        scope = get_scope(config)
+        # scope_name = scope.replace(":","_")
+        token_data = json.loads(get_secret(PROJECT_ID, f"{auth_type}_token"))
+        
+        if check_token_expiration(token_data):
+            if check_token_scope(token_data, config):
+                return token_data["access_token"]
+            
 
+        token_response = requests.post(
+            auth_url,
+            data={
+                "grant_type": "client_credentials",
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "scope": scope
+            },
+            headers={"Content-Type":"application/x-www-form-urlencoded"}
+        )
+    else:
+        token_data = json.loads(get_secret(PROJECT_ID, f"{auth_type}_token"))
+
+        if check_token_expiration(token_data):
+            return token_data["access_token"]
+        
+        token_response = requests.post(
+            auth_url,  
+            data={
+                "grant_type": "client_credentials",
+                "client_id": client_id,
+                "client_secret": client_secret,
+            },
+        )
+
+    token_response.raise_for_status()  # Raise an error for bad responses
+    token_data = token_response.json()
+
+    
     # Calculate expiration time with a safety margin
-    expires_at = datetime.utcnow() + timedelta(
-        seconds=token_data["expires_in"] - 60
-    )
+    expires_at = datetime.utcnow() + timedelta(seconds=token_data["expires_in"] - 60)
     token_data["expires_at"] = expires_at
-    TOKEN_CACHE[api_name] = token_data
+
+    if auth_type == "sat":    
+        scope = get_scope(config)
+        scope_name = scope.replace(":","_")
+
+        store_token_in_secret(PROJECT_ID, 
+                            f"{auth_type}_token", 
+                            token_data)
+    else:
+        store_token_in_secret(PROJECT_ID, 
+                            f"{auth_type}_token", 
+                            token_data)
+
 
     return token_data["access_token"]
 
-
-def refresh_token(auth_type, auth_url, client_id, client_secret, config):
-    """Refreshes the OAuth token."""
-    if auth_type == "AUTH1":
-        token_response = requests.post(
-            auth_url,
-            data={
-                "grant_type": "client_credentials",
-                "client_id": client_id,
-                "client_secret": client_secret,
-                "scope": config.get('scope'),
-            },
-        )
-    else:
-        token_response = requests.post(
-            auth_url,
-            data={
-                "grant_type": "client_credentials",
-                "client_id": client_id,
-                "client_secret": client_secret,
-            },
-        )
-    token_response.raise_for_status()
-    return token_response.json()
-
 def make_api_request(api_name, config):
     """Makes an API request with the appropriate OAuth token."""
+
     token = get_oauth_token(api_name, config)
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -98,8 +205,10 @@ def make_api_request(api_name, config):
     return response.json()
 
 
+
 def all_consolidated_apis(request):
     """Cloud Function to handle the consolidated API call."""
+
     consolidated_response = {}
     API_CONFIGS = request.get_json()
     try:
@@ -117,9 +226,6 @@ def all_consolidated_apis(request):
     except requests.exceptions.RequestException as e:
         return {'message':
             f"Error during API request: {e}"}
+
     except Exception as e:
         return {'message': f"An unexpected error occurred: {e}"}
-
-
-def hello(request):
-    return "Hello world!"
