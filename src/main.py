@@ -35,7 +35,7 @@ def get_secret(request):
         secret_id: The ID of the secret.
 
     Returns:
-        The value of the secret, or an empty string if the secret was created.
+        The value of the secret, or an empty string if the secret was created. Test
     """
 
     project_id = request.args.get('project_id')
