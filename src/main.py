@@ -13,15 +13,16 @@ secret_id = "my_secret_value"
 version_id = "latest"
 
 # Endpoint to call the regional secret manager sever.
-api_endpoint = f"secretmanager.{location_id}.rep.googleapis.com"
+#api_endpoint = f"secretmanager.{location_id}.rep.googleapis.com"
 
 # Create the Secret Manager client.
 client = secretmanager_v1.SecretManagerServiceClient(
-    client_options={"api_endpoint": api_endpoint},
+    #client_options={"api_endpoint": api_endpoint},
 )
 
 # Build the resource name of the secret version.
-name = f"projects/{project_id}/locations/{location_id}/secrets/{secret_id}/versions/{version_id}"
+name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
+#name = f"projects/{project_id}/locations/{location_id}/secrets/{secret_id}/versions/{version_id}"
 
 response = client.access_secret_version(name=name)
 my_secret_value = response.payload.data.decode("UTF-8")
