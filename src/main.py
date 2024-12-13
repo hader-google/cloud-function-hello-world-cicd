@@ -48,7 +48,7 @@ def store_token_in_secret(project_id, secret_id, token):
         request={"parent": parent, "payload": {"data": token_json.encode("UTF-8")}}
     )
 
-
+@functions_framework.http
 def get_secret(request):
     """Retrieves a secret from Secret Manager, creating it if it doesn't exist.
 
@@ -61,25 +61,39 @@ def get_secret(request):
     """
 
     project_id = "hader-poc-001"
+    location_id = "us-central1"
     secret_id = "my_secret_value"
+    version_id = "latest"
 
-    client = secretmanager.SecretManagerServiceClient()
-    name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
+    # Create the Secret Manager client.
+    client = secretmanager.SecretManagerServiceClient(
+        #client_options={"api_endpoint": api_endpoint},
+    )
 
-    if check_secret_exists(project_id, secret_id): 
-        response = client.access_secret_version(name=name)
-        return response.payload.data.decode('UTF-8')
-    else:
-        parent = f"projects/{project_id}"
-        _ = client.create_secret(
-        request={
-            "parent": parent,
-            "secret_id": secret_id,
-            "secret": {"replication": {"automatic": {}}}
-        }
-    )   
+    # Build the resource name of the secret version.
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
+    #name = f"projects/{project_id}/locations/{location_id}/secrets/{secret_id}/versions/{version_id}"
 
-        return "{}"
+    response = client.access_secret_version(name=name)
+    my_secret_value = response.payload.data.decode("UTF-8")
+
+    # client = secretmanager.SecretManagerServiceClient()
+    # name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
+
+    # if check_secret_exists(project_id, secret_id): 
+    #     response = client.access_secret_version(name=name)
+    #     return response.payload.data.decode('UTF-8')
+    # else:
+    #     parent = f"projects/{project_id}"
+    #     _ = client.create_secret(
+    #     request={
+    #         "parent": parent,
+    #         "secret_id": secret_id,
+    #         "secret": {"replication": {"automatic": {}}}
+    #     }
+    # )   
+
+    return f"Hello there: {my_secret_value}"
 
 def check_secret_exists(project_id, secret_id):
     """Checks if a secret exists in Secret Manager.
