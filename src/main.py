@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from google.cloud import secretmanager
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-
+version_id = "latest"
 
 def convert_datetime(obj):
     """Default function to encode datetimes into a serializable string for json encoding"""
@@ -227,7 +227,7 @@ def create_regional_secret(
 
 
 def get_regional_secret(
-    project_id: str, location_id: str, secret_id: str, version_id: str
+    project_id: str, location_id: str, secret_id: str
          ) -> secretmanager.GetSecretRequest:
     """
     Gets information about the given secret. This only returns metadata about
@@ -236,8 +236,8 @@ def get_regional_secret(
 
     # Endpoint to call the regional Secret Manager API
     api_endpoint = f"secretmanager.{location_id}.rep.googleapis.com"
-    logging.info(secret_id)
-    logging.info(api_endpoint)
+    print(secret_id)
+    print(api_endpoint)
     # Create the Secret Manager client.
     client = secretmanager.SecretManagerServiceClient(
         client_options={"api_endpoint": api_endpoint},
@@ -248,13 +248,13 @@ def get_regional_secret(
 
     try:
         response = client.access_secret_version(request={"name": name})
-        logging.info(response)
-        logging.info("Inside try")
+        print(response)
+        print("Inside try")
     except Exception as e:
         print("Inside except")
         _ = create_regional_secret(project_id, location_id, secret_id)
         print("After the creation")
-        response = client.get_secret(request={"name": name})
+        response = client.access_secret_version(request={"name": name})
         print(response)
     return response.payload.data.decode('UTF-8')
 
@@ -310,8 +310,8 @@ def all_consolidated_apis(request):
 @functions_framework.http
 def secret_manager_access_test(request):
     """Function to test secret manager access."""
+    request.get
     project_id = "hader-poc-001"
     location_id = "us-central1"
-    secret_id = "my_secret_value"
-    version_id = "latest"
-    return get_regional_secret(project_id, location_id, secret_id, version_id)
+    secret_id = "my_secret_value_test"
+    return get_regional_secret(project_id, location_id, secret_id)
