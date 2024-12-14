@@ -7,8 +7,6 @@ from datetime import datetime, timedelta
 from google.cloud import secretmanager
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-version_id = "latest"
-
 def convert_datetime(obj):
     """Default function to encode datetimes into a serializable string for json encoding"""
     
@@ -233,6 +231,7 @@ def get_regional_secret(
     Gets information about the given secret. This only returns metadata about
     the secret container, not any secret material.
     """
+    version_id = "latest"
 
     # Endpoint to call the regional Secret Manager API
     api_endpoint = f"secretmanager.{location_id}.rep.googleapis.com"
@@ -245,6 +244,7 @@ def get_regional_secret(
 
     # Build the resource name of the secret.
     name = f"projects/{project_id}/locations/{location_id}/secrets/{secret_id}/versions/{version_id}"
+    print(name)
 
     try:
         response = client.access_secret_version(request={"name": name})
