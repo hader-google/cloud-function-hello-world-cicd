@@ -310,7 +310,6 @@ def all_consolidated_apis(request):
 @functions_framework.http
 def secret_manager_access_test(request):
     """Function to test secret manager access."""
-    request.get
     project_id = "hader-poc-001"
     location_id = "us-central1"
     secret_id = "my_secret_value_test"
