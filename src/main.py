@@ -314,4 +314,4 @@ def secret_manager_access_test(request):
     location_id = "us-central1"
     secret_id = "my_secret_value"
     version_id = "latest"
-    logging.info(get_regional_secret(project_id, location_id, secret_id, version_id))
+    return get_regional_secret(project_id, location_id, secret_id, version_id)
