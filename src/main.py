@@ -236,8 +236,8 @@ def get_regional_secret(
 
     # Endpoint to call the regional Secret Manager API
     api_endpoint = f"secretmanager.{location_id}.rep.googleapis.com"
-    print(secret_id)
-    print(api_endpoint)
+    logging.info(secret_id)
+    logging.info(api_endpoint)
     # Create the Secret Manager client.
     client = secretmanager.SecretManagerServiceClient(
         client_options={"api_endpoint": api_endpoint},
@@ -247,9 +247,9 @@ def get_regional_secret(
     name = f"projects/{project_id}/locations/{location_id}/secrets/{secret_id}/versions/{version_id}"
 
     try:
-        response = client.get_secret(request={"name": name})
-        print(response)
-        print("Inside try")
+        response = client.access_secret_version(request={"name": name})
+        logging.info(response)
+        logging.info("Inside try")
     except Exception as e:
         print("Inside except")
         _ = create_regional_secret(project_id, location_id, secret_id)
