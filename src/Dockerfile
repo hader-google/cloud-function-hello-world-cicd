@@ -18,4 +18,4 @@ RUN pip install functions-framework
 RUN pip install -r src/requirements.txt
 
 # Run the web service on container startup.
-CMD exec functions-framework --target=get_secret --source=src/main.py --port=8081
+CMD exec functions-framework --target=secret_manager_access_test --source=src/main.py --port=8081
