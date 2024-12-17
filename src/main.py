@@ -1,11 +1,14 @@
 # Imports Python standard library logging
 import logging
+import os
 import requests
 import json
 import functions_framework
 from datetime import datetime, timedelta
 from google.cloud import secretmanager
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+version_id = "latest"
 
 def convert_datetime(obj):
     """Default function to encode datetimes into a serializable string for json encoding"""
@@ -55,7 +58,7 @@ def get_secret(project_id, secret_id):
         }
     )   
 
-        return "{}"
+    return "{}"
 
 def check_secret_exists(project_id, secret_id):
     """Checks if a secret exists in Secret Manager.
@@ -231,8 +234,7 @@ def get_regional_secret(
     Gets information about the given secret. This only returns metadata about
     the secret container, not any secret material.
     """
-    version_id = "latest"
-
+ 
     # Endpoint to call the regional Secret Manager API
     api_endpoint = f"secretmanager.{location_id}.rep.googleapis.com"
     print(secret_id)
@@ -312,5 +314,6 @@ def secret_manager_access_test(request):
     """Function to test secret manager access."""
     project_id = "hader-poc-001"
     location_id = "us-central1"
-    secret_id = "my_secret_value_test"
-    return get_regional_secret(project_id, location_id, secret_id)
+    secret_value = os.getenv('SECRET_VALUE')
+    print(f"SECRET_VALUE: {secret_value}")
+    return secret_value
